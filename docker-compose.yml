@@ -1,0 +1,72 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_API_BASE_URL: http://localhost:3001/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      PORT: 3001
+      FRONTEND_ORIGIN: http://localhost:5173
+      POSTGRES_REPOSITORY_MODE: postgres
+      DATABASE_URL: postgresql://platform:platform@postgres:5432/ai_platform
+      COSMOS_REPOSITORY_MODE: http
+      COSMOS_MOCK_URL: http://cosmosdb-mock:8090
+      AZURE_AI_PROVIDER: mock
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cosmosdb-mock:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/api/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: platform
+      POSTGRES_PASSWORD: platform
+      POSTGRES_DB: ai_platform
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./backend/db/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./backend/db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U platform -d ai_platform"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  cosmosdb-mock:
+    image: node:20-alpine
+    working_dir: /app
+    command: ["node", "server.mjs"]
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./cosmosdb-mock:/app
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8090/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+volumes:
+  postgres-data:

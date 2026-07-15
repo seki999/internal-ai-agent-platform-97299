@@ -1,0 +1,12 @@
+{
+  "provider": "Azure OpenAI Service",
+  "endpointEnvironmentVariable": "AZURE_OPENAI_ENDPOINT",
+  "deploymentEnvironmentVariable": "AZURE_OPENAI_DEPLOYMENT",
+  "credential": "managed-identity-recommended",
+  "apiKeyEnvironmentVariableForLocalOnly": "AZURE_OPENAI_API_KEY",
+  "mockProviderValues": ["Azure OpenAI mock", "Local mock"],
+  "contentSafety": {
+    "enabled": true,
+    "policy": "replace-with-approved-enterprise-policy"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "chat_sessions": [
+    {
+      "id": "session-welcome",
+      "title": "プラットフォーム利用ガイド",
+      "userId": "mock-user",
+      "createdAt": "2026-07-15T08:00:00.000Z",
+      "updatedAt": "2026-07-15T08:00:00.000Z"
+    }
+  ],
+  "chat_messages": [
+    {
+      "id": "message-welcome",
+      "sessionId": "session-welcome",
+      "role": "assistant",
+      "content": "こんにちは。社内AIエージェント基盤の操作についてご案内します。",
+      "createdAt": "2026-07-15T08:00:00.000Z"
+    }
+  ],
+  "agent_memory": []
+}

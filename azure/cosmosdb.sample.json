@@ -1,0 +1,12 @@
+{
+  "accountName": "replace-with-cosmos-account",
+  "databaseName": "internal-ai-platform",
+  "consistencyLevel": "Session",
+  "containers": [
+    { "name": "chat_sessions", "partitionKey": "/userId", "autoscaleMaxThroughput": 1000 },
+    { "name": "chat_messages", "partitionKey": "/sessionId", "autoscaleMaxThroughput": 1000 },
+    { "name": "agent_memory", "partitionKey": "/agentId", "autoscaleMaxThroughput": 1000 }
+  ],
+  "authentication": "managed-identity-recommended",
+  "endpointEnvironmentVariable": "AZURE_COSMOS_ENDPOINT"
+}

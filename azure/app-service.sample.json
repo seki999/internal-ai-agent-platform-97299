@@ -1,0 +1,22 @@
+{
+  "resourceType": "Microsoft.Web/sites",
+  "kind": "app,linux,container",
+  "location": "japaneast",
+  "appServicePlan": {
+    "sku": "P1v3",
+    "zoneRedundant": false
+  },
+  "frontend": {
+    "name": "internal-ai-agent-frontend",
+    "healthCheckPath": "/"
+  },
+  "backend": {
+    "name": "internal-ai-agent-api",
+    "healthCheckPath": "/api/health",
+    "appSettings": {
+      "POSTGRES_REPOSITORY_MODE": "postgres",
+      "COSMOS_REPOSITORY_MODE": "azure",
+      "AZURE_AI_PROVIDER": "azure-openai"
+    }
+  }
+}

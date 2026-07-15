@@ -1,0 +1,26 @@
+{
+  "name": "internal-ai-agent-platform-97299",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n backend,frontend -c cyan,magenta \"npm run dev --workspace backend\" \"npm run dev --workspace frontend\"",
+    "build": "npm run build --workspace backend && npm run build --workspace frontend",
+    "lint": "npm run lint --workspace backend && npm run lint --workspace frontend",
+    "test": "npm run test:backend && npm run test:frontend",
+    "test:backend": "npm run test --workspace backend",
+    "test:frontend": "npm run test --workspace frontend",
+    "test:e2e": "playwright test -c e2e/playwright.config.ts --grep-invert @screenshot",
+    "screenshots": "playwright test -c e2e/playwright.config.ts --grep @screenshot"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.1",
+    "concurrently": "^9.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
