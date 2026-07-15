@@ -2,8 +2,6 @@
 
 社内向け生成AIチャット、AIエージェント管理、AIサービス調査・検証、ログ監視を一つにまとめた「社内AIエージェント基盤ポータル」です。TypeScript / Node.js / React / Azure 想定構成 / CosmosDB / PostgreSQL を使い、基本設計からUI機能、API、保存層、テスト、運用設計までを確認できる GitHub portfolio sample として作成しています。
 
-実在する顧客名、企業名、機関名、業務名、秘密情報は含みません。Azureサービスはローカルで費用やAPI keyを必要としない mock / adapter で表現しています。
-
 ## 実行画面
 
 ### Operations dashboard
