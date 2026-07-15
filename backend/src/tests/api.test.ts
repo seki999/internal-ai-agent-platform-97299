@@ -2,10 +2,15 @@ import request from "supertest";
 import { describe, expect, it } from "vitest";
 import { createApp } from "../app";
 
+/**
+ * 実際のExpress route・validation・Serviceをまとめて通すAPI結合テスト。
+ * 外部DBへ接続しないmemory既定値を使い、CIでも再現可能にする。
+ */
 describe("REST API", () => {
   const app = createApp();
 
   it("health と dashboard を取得できる", async () => {
+    // 稼働確認と初期画面の集約値を一つのケースで検証する。
     await request(app).get("/api/health").expect(200).expect(({ body }) => {
       expect(body.status).toBe("ok");
     });
@@ -15,10 +20,12 @@ describe("REST API", () => {
   });
 
   it("不正な agent 作成入力を 400 にする", async () => {
+    // name/descriptionの最小長がroute層で機能することを確認する。
     await request(app).post("/api/agents").send({ name: "x", description: "短い" }).expect(400);
   });
 
   it("chat session と message を保存する", async () => {
+    // session作成後のIDを使い、user/assistantの一連の保存フローを確認する。
     const session = await request(app).post("/api/chat/sessions").send({ title: "APIテスト" }).expect(201);
     const result = await request(app)
       .post(`/api/chat/sessions/${session.body.id}/messages`)

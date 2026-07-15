@@ -1,5 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
 
+// route・表示名・iconを同じ配列で管理し、sidebar項目追加時の修正箇所を一つにする。
 const navItems = [
   { to: "/", label: "ダッシュボード", icon: "⌂", end: true },
   { to: "/chat", label: "生成AIチャット", icon: "✦" },
@@ -8,7 +9,11 @@ const navItems = [
   { to: "/monitoring", label: "ログ・監視", icon: "⌁" },
 ];
 
-/** 全画面共通の操作導線。メニュー遷移で実際に画面内容が切り替わる。 */
+/**
+ * 全業務画面で共通利用するsidebar/topbarレイアウト。
+ * NavLinkのactive判定により、現在地を視覚的に示しながら実際のrouteへ遷移する。
+ * Outlet部分だけを差し替えるため、運用コンソールとして一貫した操作感を維持できる。
+ */
 export function Layout() {
   return (
     <div className="app-shell">

@@ -1,11 +1,13 @@
 name: CI
 
+# mainへのpushとPRで同じ品質gateを実行し、ローカルとの差異を減らす。
 on:
   push:
     branches: [main]
   pull_request:
 
 permissions:
+  # build/testだけを行うため、repository内容のread権限に限定する。
   contents: read
 
 jobs:
@@ -16,6 +18,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # package-lock.jsonをcache keyに利用し、Node 20の実行環境を固定する。
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -23,9 +26,11 @@ jobs:
           cache: npm
 
       - name: Install
+        # npm ciでlockfileとmanifestの不一致も検出する。
         run: npm ci
 
       - name: Lint and typecheck
+        # 本projectのlint scriptはFrontend/Backendのstrict typecheckを実行する。
         run: npm run lint
 
       - name: Unit and API tests
@@ -35,7 +40,9 @@ jobs:
         run: npm run build
 
       - name: Install Playwright Chromium
+        # GitHub-hosted runnerにbrowserとOS依存libraryを同時導入する。
         run: npx playwright install --with-deps chromium
 
       - name: E2E test
+        # mock loginと主要route遷移を実browserで確認する。
         run: npm run test:e2e

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { AiService } from "../services/aiService";
 
+/** AIサービス評価画面が依存する指標契約を固定するunit test。 */
 describe("AiService", () => {
   it("評価結果に latency・token・score と保存状態を含める", () => {
     const result = new AiService().evaluate("会議内容を要約してください", "Azure OpenAI mock");

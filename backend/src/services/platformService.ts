@@ -2,7 +2,10 @@ import { AgentService } from "./agentService";
 import { AiService } from "./aiService";
 import { ChatService } from "./chatService";
 
-/** ダッシュボード用に複数サービスの指標を集約する。 */
+/**
+ * ダッシュボード用に複数Serviceの指標を集約するFacade。
+ * FrontendがAgent・Chat・AI評価へ個別アクセスせず、一回のAPI呼び出しで初期表示できるようにする。
+ */
 export class PlatformService {
   constructor(
     private readonly agents: AgentService,
@@ -10,12 +13,14 @@ export class PlatformService {
     private readonly ai: AiService,
   ) {}
 
+  /** 独立した取得処理を並列実行し、Dashboard APIの待ち時間を抑える。 */
   async dashboard() {
     const [agents, runs, sessions] = await Promise.all([
       this.agents.list(),
       this.agents.listRuns(),
       this.chat.listSessions(),
     ]);
+    // memory seedが少ない場合でも運用画面の情報設計を確認できるよう、表示用mock下限を設ける。
     return {
       metrics: {
         agentCount: agents.length,

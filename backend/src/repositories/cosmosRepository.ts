@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { ChatMessage, ChatSession } from "../types/domain";
 
+/** mock seed内の作成・更新時刻を同一にし、初期表示の並び順を安定させる。 */
 const createdAt = new Date().toISOString();
 
 /**
@@ -32,6 +33,10 @@ export class CosmosRepository {
     private readonly baseUrl = "http://localhost:8090",
   ) {}
 
+  /**
+   * HTTP mockとの通信を一か所へ集約する。
+   * 非2xxを必ず例外へ変換し、Serviceが不完全なJSONを正常結果として扱わないようにする。
+   */
   private async request<T>(path: string, init?: RequestInit): Promise<T> {
     const response = await fetch(`${this.baseUrl}${path}`, {
       ...init,
@@ -41,11 +46,13 @@ export class CosmosRepository {
     return response.json() as Promise<T>;
   }
 
+  /** 更新時刻の降順でチャットセッションを取得する。 */
   async listSessions(): Promise<ChatSession[]> {
     if (this.mode === "http") return this.request<ChatSession[]>("/sessions");
     return [...this.sessions].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   }
 
+  /** 新しいセッションへUUIDと監査時刻を付与し、選択中ユーザーに紐付ける。 */
   async createSession(title: string): Promise<ChatSession> {
     if (this.mode === "http") {
       return this.request<ChatSession>("/sessions", {
@@ -64,11 +71,16 @@ export class CosmosRepository {
     return session;
   }
 
+  /** sessionIdをCosmosDBのpartition key候補として、会話単位のmessageを取得する。 */
   async listMessages(sessionId: string): Promise<ChatMessage[]> {
     if (this.mode === "http") return this.request<ChatMessage[]>(`/sessions/${sessionId}/messages`);
     return this.messages.filter((message) => message.sessionId === sessionId);
   }
 
+  /**
+   * user/assistant messageを共通形式で追加する。
+   * message追加時にsessionのupdatedAtも更新し、一覧の最近利用順へ反映する。
+   */
   async addMessage(sessionId: string, role: ChatMessage["role"], content: string): Promise<ChatMessage> {
     if (this.mode === "http") {
       return this.request<ChatMessage>(`/sessions/${sessionId}/messages`, {

@@ -2,8 +2,10 @@ import { randomUUID } from "node:crypto";
 import { Pool } from "pg";
 import { Agent, AgentRun, AgentType } from "../types/domain";
 
+/** DBとmemoryで日時表現を揃えるため、API境界ではISO-8601文字列を利用する。 */
 const now = () => new Date().toISOString();
 
+// 外部DBなしでも画面・API・テストを確認できる、中立的な初期Agentデータ。
 const initialAgents: Agent[] = [
   {
     id: "agent-faq",
@@ -34,6 +36,7 @@ const initialAgents: Agent[] = [
   },
 ];
 
+// Dashboardと実行履歴画面が初回表示から確認できるようにするseed履歴。
 const initialRuns: AgentRun[] = [
   {
     id: "run-seed-1",
@@ -57,12 +60,17 @@ export class BusinessRepository {
   private readonly runs = structuredClone(initialRuns);
   private readonly pool?: Pool;
 
+  /**
+   * modeがpostgresのときだけconnection poolを生成する。
+   * memoryモードで不要なDB接続を試みないため、ローカル検証とunit testを単独実行できる。
+   */
   constructor(mode = "memory", databaseUrl = "") {
     if (mode === "postgres") {
       this.pool = new Pool({ connectionString: databaseUrl });
     }
   }
 
+  /** Agent一覧を作成日時順で取得し、DBのsnake_caseをドメイン型へ変換する。 */
   async listAgents(): Promise<Agent[]> {
     if (!this.pool) return this.agents;
     const result = await this.pool.query(
@@ -79,10 +87,15 @@ export class BusinessRepository {
     }));
   }
 
+  /** 保存方式に依存せず、IDが一致するAgentを一件取得する。 */
   async getAgent(id: string): Promise<Agent | undefined> {
     return (await this.listAgents()).find((agent) => agent.id === id);
   }
 
+  /**
+   * UIから作成したAgentをdraftとして保存する。
+   * custom Agentの実行ロジックは未設定のため、既定schemaを最小構成に限定している。
+   */
   async createAgent(input: {
     name: string;
     description: string;
@@ -109,6 +122,7 @@ export class BusinessRepository {
     return agent;
   }
 
+  /** 監視・Dashboard用途のため、新しい実行履歴から最大50件を返す。 */
   async listRuns(): Promise<AgentRun[]> {
     if (!this.pool) return [...this.runs].reverse();
     const result = await this.pool.query(
@@ -130,6 +144,7 @@ export class BusinessRepository {
     }));
   }
 
+  /** 実行結果をinput/output/logsごと保存し、後から監査できる形を保つ。 */
   async saveRun(run: AgentRun): Promise<void> {
     if (!this.pool) {
       this.runs.push(run);

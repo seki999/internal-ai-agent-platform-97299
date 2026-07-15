@@ -12,7 +12,9 @@ export const faqAgent: AgentDefinition = {
     category: z.string().optional(),
   }),
   async execute(input) {
+    // AgentServiceからはunknownで受け取り、実行直前にもschemaを適用して不正入力を遮断する。
     const value = this.inputSchema.parse(input);
+    // 本番RAGを想定し、回答本文だけでなく参照元と確信度を含む構造化契約を返す。
     return {
       answer: `「${value.question}」について、社内ナレッジを確認した想定の mock 回答です。担当部門の最新手順も併せて確認してください。`,
       sources: ["社内手続きガイド / 第3章", "FAQナレッジ / 更新版"],

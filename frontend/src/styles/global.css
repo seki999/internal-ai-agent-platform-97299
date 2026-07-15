@@ -1,3 +1,18 @@
+/*
+ * 社内AIエージェント基盤ポータルの共通スタイル。
+ *
+ * 設計方針:
+ * - :rootに状態色・背景色・border色を集約し、全画面の視覚言語を統一する。
+ * - app-shell/sidebar/topbarは共通ナビゲーション領域として固定し、route変更時も位置を保つ。
+ * - stats/dashboardはKPI、時系列、接続先health、監査履歴を高密度に配置する。
+ * - chatはsessionとmessageを分割し、CosmosDBのpartition単位を視覚的に表現する。
+ * - agent/runは定義、schema、入力、結果、traceを同一画面で比較できる構成にする。
+ * - evaluation/monitoringはprovider比較と運用監視の情報階層を明確にする。
+ * - loginはmock認証であることを明示しつつ、Portfolioの入口としての完成度を持たせる。
+ *
+ * 画面幅は業務ダッシュボードの情報量を守るため1180pxを下限とし、1250px以下では
+ * sidebarと余白だけを縮小する。モバイル対応は本番要件確定後の拡張点とする。
+ */
 :root {
   color: #172039;
   background: #f3f5fa;

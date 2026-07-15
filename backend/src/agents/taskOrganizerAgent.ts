@@ -12,7 +12,9 @@ export const taskOrganizerAgent: AgentDefinition = {
     dueDate: z.string().optional(),
   }),
   async execute(input) {
+    // 自由記述を業務処理へ渡す前に、最低限の情報量があることをschemaで保証する。
     const value = this.inputSchema.parse(input);
+    // mockでも本番Agentと同じUI検証ができるよう、配列形式のtaskとpriorityを返す。
     return {
       summary: "依頼内容を3つの実行単位に整理しました。",
       tasks: [

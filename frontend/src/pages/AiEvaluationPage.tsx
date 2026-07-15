@@ -4,9 +4,14 @@ import { StatusBadge } from "../components/StatusBadge";
 
 type Result = Awaited<ReturnType<typeof api.evaluate>>;
 
+/**
+ * AI providerの応答形式・latency・token・評価scoreを比較する検証Page。
+ * 実API keyを要求せず、Provider切替時も同じ評価項目でUIと保存契約を確認する。
+ */
 export function AiEvaluationPage() {
   const [prompt, setPrompt] = useState("社内問い合わせデータの傾向を3点に整理し、次の改善アクションを提案してください。");
   const [provider, setProvider] = useState("Azure OpenAI mock"); const [result, setResult] = useState<Result>();
+  /** formの入力条件をAPIへ渡し、保存済み評価結果を各metric cardへ反映する。 */
   async function evaluate(event: FormEvent) { event.preventDefault(); setResult(await api.evaluate(prompt, provider)); }
   return (
     <>

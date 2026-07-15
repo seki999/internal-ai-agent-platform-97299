@@ -4,14 +4,20 @@ import { api } from "../api/client";
 import { StatusBadge } from "../components/StatusBadge";
 import type { Agent } from "../types";
 
+/**
+ * Agent catalog、詳細、作成、実行導線をまとめた管理Page。
+ * 一覧選択はclient stateだけで切り替え、実行は監査情報を表示できる専用routeへ遷移する。
+ */
 export function AgentsPage() {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [selected, setSelected] = useState<Agent>();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState(""); const [description, setDescription] = useState("");
   const navigate = useNavigate();
+  // 初回取得後に先頭Agentを選び、右側detail panelをすぐ確認できるようにする。
   useEffect(() => { api.agents().then((items) => { setAgents(items); setSelected(items[0]); }); }, []);
 
+  /** 作成済みdraftを再取得せず一覧末尾へ反映し、そのAgentのdetailを選択する。 */
   async function create(event: FormEvent) {
     event.preventDefault(); const agent = await api.createAgent({ name, description });
     setAgents((items) => [...items, agent]); setSelected(agent); setShowForm(false); setName(""); setDescription("");

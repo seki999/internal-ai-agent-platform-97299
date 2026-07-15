@@ -28,7 +28,9 @@ export const handle =
   };
 
 export const createControllers = (services: Services) => ({
+  // healthは外部依存の詳細を返さず、load balancerが判定できる最小情報に限定する。
   health: handle((_request, response) => response.json({ status: "ok", timestamp: new Date().toISOString() })),
+  // 以下のcontrollerはHTTP変換だけを担当し、業務判断はServiceへ委譲する。
   dashboard: handle(async (_request, response) => response.json(await services.platform.dashboard())),
   listAgents: handle(async (_request, response) => response.json(await services.agents.list())),
   getAgent: handle(async (request, response) => {
@@ -36,6 +38,7 @@ export const createControllers = (services: Services) => ({
     if (!agent) throw Object.assign(new Error("エージェントが見つかりません"), { statusCode: 404 });
     response.json(agent);
   }),
+  // 作成・実行・message送信・評価は新規resource生成として201を返す。
   createAgent: handle(async (request, response) => response.status(201).json(await services.agents.create(request.body))),
   runAgent: handle(async (request, response) => response.status(201).json(await services.agents.run(routeId(request.params.id), request.body.input))),
   listRuns: handle(async (_request, response) => response.json(await services.agents.listRuns())),

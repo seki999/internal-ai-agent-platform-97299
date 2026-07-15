@@ -12,7 +12,9 @@ export const summarizerAgent: AgentDefinition = {
     maxPoints: z.number().int().min(1).max(5).optional(),
   }),
   async execute(input) {
+    // maxPointsへ上限を設け、過大な出力要求を受け付けない実運用上の制約を表現する。
     const value = this.inputSchema.parse(input);
+    // 要約結果を単一文字列にせず、要点・示唆・次の行動へ分けて後続UIで再利用しやすくする。
     return {
       headline: "入力データの主要ポイントを抽出しました",
       keyPoints: [

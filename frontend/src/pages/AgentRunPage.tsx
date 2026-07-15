@@ -4,19 +4,29 @@ import { api } from "../api/client";
 import { StatusBadge } from "../components/StatusBadge";
 import type { Agent, AgentRun } from "../types";
 
+// 各Agentのschemaに合う初期JSONを用意し、初回閲覧者がすぐ実行フローを確認できるようにする。
 const defaults: Record<string, string> = {
   "agent-faq": '{\n  "question": "申請フローと必要な確認事項を教えてください",\n  "category": "社内手続き"\n}',
   "agent-task": '{\n  "text": "月次報告の準備、レビュー、関係者共有を整理してください",\n  "dueDate": "2026-07-18"\n}',
   "agent-summary": '{\n  "content": "今期は問い合わせ対応時間が改善しました。一方でデータ品質の継続確認が必要です。次回は監視指標を見直します。",\n  "maxPoints": 3\n}',
 };
 
+/**
+ * Agentの入力schema、実行結果、latency、status、処理traceを同時に確認する実行Page。
+ * JSONを直接編集できる形式にし、正常系だけでなくvalidation errorもPortfolio上で確認可能にする。
+ */
 export function AgentRunPage() {
   const { id = "agent-faq" } = useParams();
   const [agent, setAgent] = useState<Agent>();
   const [input, setInput] = useState(defaults[id] ?? '{\n  "text": "確認対象"\n}');
   const [run, setRun] = useState<AgentRun>(); const [error, setError] = useState("");
+  // URL parameterが変わるたびにAgent definitionを取得し、schema表示を実行対象と同期する。
   useEffect(() => { api.agent(id).then(setAgent); }, [id]);
 
+  /**
+   * textareaのJSONを構造化し、Agent APIへ送信する。
+   * JSON構文エラーとAPI validation errorを同じerror領域へ表示し、失敗理由を利用者へ残す。
+   */
   async function execute(event: FormEvent) {
     event.preventDefault(); setError("");
     try { setRun(await api.runAgent(id, JSON.parse(input))); } catch (err) { setError(err instanceof Error ? err.message : "実行に失敗しました"); }

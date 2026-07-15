@@ -3,8 +3,13 @@ import { api } from "../api/client";
 import { StatusBadge } from "../components/StatusBadge";
 import type { PlatformLog } from "../types";
 
+/**
+ * API状態、ログ、テスト結果、resource使用量を俯瞰する監視Page。
+ * このsampleでは機密情報を含まないmock telemetryを使い、本番監視画面の情報設計を示す。
+ */
 export function MonitoringPage() {
   const [logs, setLogs] = useState<PlatformLog[]>([]);
+  // 初回だけ構造化ログを取得する。継続pollingは本番の負荷・鮮度要件に合わせる拡張点とする。
   useEffect(() => { api.logs().then(setLogs); }, []);
   return (
     <>

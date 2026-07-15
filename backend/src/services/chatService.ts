@@ -1,21 +1,31 @@
 import { CosmosRepository } from "../repositories/cosmosRepository";
 
-/** チャット入力と mock AI 応答を同じセッションへ保存する。 */
+/**
+ * チャット入力とmock AI応答を同じセッションへ保存するService。
+ * Controllerから保存方式を隠し、memory・HTTP mock・将来のAzure CosmosDBで同じ流れを再利用する。
+ */
 export class ChatService {
   constructor(private readonly repository: CosmosRepository) {}
 
+  /** 左ペインへ表示するセッション一覧を取得する。 */
   listSessions() {
     return this.repository.listSessions();
   }
 
+  /** 利用者が開始した新規業務相談のセッションを作成する。 */
   createSession(title: string) {
     return this.repository.createSession(title);
   }
 
+  /** 選択中セッションの会話を時系列で取得する。 */
   listMessages(sessionId: string) {
     return this.repository.listMessages(sessionId);
   }
 
+  /**
+   * user messageを先に保存し、その後にassistant mock応答を保存する。
+   * 両messageを返すことで、Frontendは追加の再取得なしに会話へ反映できる。
+   */
   async sendMessage(sessionId: string, content: string) {
     const user = await this.repository.addMessage(sessionId, "user", content);
     const assistant = await this.repository.addMessage(

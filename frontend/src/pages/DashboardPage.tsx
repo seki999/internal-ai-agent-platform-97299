@@ -4,11 +4,17 @@ import { StatCard } from "../components/StatCard";
 import { StatusBadge } from "../components/StatusBadge";
 import type { Dashboard } from "../types";
 
+/**
+ * Agent利用状況、会話数、AI評価、接続先healthを一画面へ集約するPage。
+ * Backend側の集約APIを利用し、Frontendから複数endpointを順番に呼ばないことで初期表示を単純化する。
+ */
 export function DashboardPage() {
   const [data, setData] = useState<Dashboard>();
 
+  // 初回mount時だけDashboard全体を取得する。更新ボタン連携は将来の拡張点としてUIだけ示している。
   useEffect(() => { api.dashboard().then(setData); }, []);
 
+  // データ取得前に空のKPIを見せず、読み込み中であることを明示する。
   if (!data) return <div className="loading">プラットフォーム状態を読み込み中...</div>;
   return (
     <>

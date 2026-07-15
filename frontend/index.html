@@ -7,7 +7,9 @@
     <title>Internal AI Agent Platform</title>
   </head>
   <body>
+    <!-- Reactが全画面をmountする唯一のroot。静的HTMLへ業務情報を重複定義しない。 -->
     <div id="root"></div>
+    <!-- ViteがTypeScript/React entry pointを開発時変換・production buildする。 -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

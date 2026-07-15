@@ -2,6 +2,10 @@ import { FormEvent, useEffect, useState } from "react";
 import { api } from "../api/client";
 import type { ChatMessage, ChatSession } from "../types";
 
+/**
+ * CosmosDBのdocument構造を想定した生成AIチャットPage。
+ * session選択とmessage表示を分け、会話を切り替えても同じ入力componentを再利用する。
+ */
 export function ChatPage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeId, setActiveId] = useState("");
@@ -9,16 +13,23 @@ export function ChatPage() {
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
 
+  // 初回にsession一覧を取得し、最新sessionを自動選択して空画面を避ける。
   useEffect(() => {
     api.sessions().then((items) => { setSessions(items); if (items[0]) setActiveId(items[0].id); });
   }, []);
+  // 選択中IDが変わったときだけ該当partitionのmessageを再取得する。
   useEffect(() => { if (activeId) api.messages(activeId).then(setMessages); }, [activeId]);
 
+  /** 新規sessionを一覧先頭へ追加し、作成直後から入力可能な状態へ切り替える。 */
   async function createSession() {
     const session = await api.createSession("新しい業務相談");
     setSessions((current) => [session, ...current]); setActiveId(session.id); setMessages([]);
   }
 
+  /**
+   * 空文字と二重送信を防ぎ、user/assistantの2messageをAPI結果から一度に反映する。
+   * 先に入力欄を空にすることで、network待機中も送信済みであることが利用者へ伝わる。
+   */
   async function submit(event: FormEvent) {
     event.preventDefault(); if (!text.trim() || !activeId) return;
     setSending(true);

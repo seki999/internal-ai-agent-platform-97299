@@ -2,6 +2,10 @@ import { NextFunction, Request, Response, Router } from "express";
 import { z } from "zod";
 import { createControllers, Services } from "../controllers/apiController";
 
+/**
+ * routeごとのZod schemaをExpress middlewareへ変換する。
+ * Controllerへ到達する前にbodyを検証済み値へ置き換え、同じ検証を各Serviceで重複させない。
+ */
 const validate = (schema: z.ZodTypeAny) =>
   (request: Request, _response: Response, next: NextFunction) => {
     try {
@@ -14,6 +18,7 @@ const validate = (schema: z.ZodTypeAny) =>
 
 /** 必須 API を一つの Router に定義し、入力検証を controller より前で実施する。 */
 export const createApiRouter = (services: Services) => {
+  // Routerをfactory化し、テスト時も本番と同じroute定義へServiceを注入できるようにする。
   const router = Router();
   const controller = createControllers(services);
   router.get("/health", controller.health);

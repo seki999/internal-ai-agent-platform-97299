@@ -3,6 +3,7 @@ interface Props { onLogin: () => void }
 /**
  * 案件で認証方式は未記載のため、画面遷移確認だけを目的とする mock login。
  * 本番では Entra ID / OIDC に置き換える境界となる。
+ * 固定値は実credentialではなく、Portfolio閲覧者が迷わず導線を確認するための表示用データである。
  */
 export function LoginPage({ onLogin }: Props) {
   return (

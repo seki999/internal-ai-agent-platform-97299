@@ -16,8 +16,13 @@ export interface EvaluationResult {
  * latency・token・score はUI/保存契約を確認するための再現可能な mock 値である。
  */
 export class AiService {
+  // 保存結果を画面上で確認するためのインメモリ領域。本番では専用Repositoryへ置き換える。
   private readonly results: EvaluationResult[] = [];
 
+  /**
+   * 同一promptをprovider間で比較できる評価結果を生成・保存する。
+   * mock値はproviderごとに固定し、テストやスクリーンショットの再現性を優先する。
+   */
   evaluate(prompt: string, provider: string): EvaluationResult {
     const promptTokens = Math.max(8, Math.ceil(prompt.length / 2.4));
     const result: EvaluationResult = {
@@ -34,6 +39,7 @@ export class AiService {
     return result;
   }
 
+  /** Dashboard上で評価実施済みか判定するため、保存済み件数だけを公開する。 */
   count() {
     return this.results.length;
   }

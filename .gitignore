@@ -8,6 +8,8 @@ test-results/
 !.env.example
 *.log
 *.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
 .DS_Store
 .idea/
 .vscode/
